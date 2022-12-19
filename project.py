@@ -66,36 +66,40 @@ def checkformemberships(carnum, membership):
                     month = empt.join(find)
                     day = re.findall(r"[0-9][0-9]$",line)   
                     day = empt.join(day)
+                else:
+                    print("You are not a member!")
+                    return False
      
-    if membership = "Monthly":            
-        if ((current_time.month == int(month)+1) or (month == 1 and current_time.month == 12)) and (int(date) == currentime_day):
-            with open("Walletdetails.txt", 'r') as fil:
-                Lines = fil.readlines()                    
-                        for line in Lines:
-                            if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                                line = line.strip()
-                                line = line.split(",")
-                                mon = int(line[1])
-                                temp = mon - 500
-                    
-            fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
-            with open("Walletdetails.txt", 'w') as file:
-                file.write(fil)
-        
-    elif membership = "Yearly":
-        if ((current_time.year == int(year)+1)) and (int(date) == currentime_day) and (int(month) == current_month):
-            with open("Walletdetails.txt", 'r') as fil:
-                Lines = fil.readlines()                    
-                        for line in Lines:
-                            if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                                line = line.strip()
-                                line = line.split(",")
-                                mon = int(line[1])
-                                temp = mon - 5000
-                    
-            fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
-            with open("Walletdetails.txt", 'w') as file:
-                file.write(fil)
+        if membership == "Monthly":            
+            if ((current_time.month == int(month)+1) or (month == 1 and current_time.month == 12)) and (int(date) == currentime_day):
+                with open("Walletdetails.txt", 'r') as fil:
+                    Lines = fil.readlines()                    
+                    for line in Lines:
+                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                            line = line.strip()
+                            line = line.split(",")
+                            mon = int(line[1])
+                            temp = mon - 500
+
+                fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
+                with open("Walletdetails.txt", 'w') as file:
+                    file.write(fil)
+
+        elif membership == "Yearly":
+            if ((current_time.year == int(year)+1)) and (int(date) == currentime_day) and (int(month) == current_month):
+                with open("Walletdetails.txt", 'r') as fil:
+                    Lines = fil.readlines()                    
+                    for line in Lines:
+                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                            line = line.strip()
+                            line = line.split(",")
+                            mon = int(line[1])
+                            temp = mon - 5000
+
+                fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
+                with open("Walletdetails.txt", 'w') as file:
+                    file.write(fil)
+    return True
                 
 clearall()
 bigloopflag = False
@@ -233,15 +237,16 @@ if choice == 1:
 
                                     with open('Personaldetails.txt', 'w') as file:
                                         file.write(filedata)
+                                        
+                                    fil = open('Walletdetails.txt').read().replace(str(temp), str(mon))
+                        
+                                    with open("Walletdetails.txt", 'w') as file:
+                                        file.write(fil)
+
+                                    checkformemberships(carnum, "Yearly")    
                                 else:
                                     print("Not enough money for membership, add balance to wallet again.")
                                     
-                        fil = open('Walletdetails.txt').read().replace(str(temp), str(mon))
-                        
-                        with open("Walletdetails.txt", 'w') as file:
-                            file.write(fil)
-                            
-                        checkformemberships(carnum, "Yearly")    
                     if flag2 == False:
                         print("No details found, create a new account!")
                 elif choice4 == 2:
@@ -269,33 +274,42 @@ if choice == 1:
 
                                     with open('Personaldetails.txt', 'w') as file:
                                         file.write(filedata)
+                                        
+                                    fil = open('Walletdetails.txt').read().replace(str(temp), str(mon))
+                        
+                                    with open("Walletdetails.txt", 'w') as file:
+                                        file.write(fil)   
+
+                                    checkformemberships(carnum, "Monthly")
+                                    
                                 else:
                                     print("Not enough money for membership, add balance to wallet again.")
-                                    
-                        fil = open('Walletdetails.txt').read().replace(str(temp), str(mon))
-                        
-                        with open("Walletdetails.txt", 'w') as file:
-                            file.write(fil)   
                             
-                        checkformemberships(carnum, "Monthly")
                     if flag2 == False:
                         print("No details found, create a new account!")
-            else: 
+            else:  
+                txt = "YES"
                 flag3 = False
-                with open('Personaldetails.txt', 'r') as filedata :
+                with open('Personaldetails.txt', 'r') as filedata:
                     Lines = filedata.readlines()         
                     for line in Lines:
-                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                            flag3 = True
-                
+                        test = re.findall(r"YES|NO",line)
+                        if len(test) == 0 or test[0] != "YES":
+                            flag3 = False
+                            break
+                            if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                                flag3 = True
+                            
                 if flag3 == True:
                     empty = ""
                     torepl = re.findall(r"[2][0][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]$",line)
                     torepl = empty.join(torepl)
                     filedata = open('Personaldetails.txt').read().replace("YES", "NO").replace(torepl, '\n')
 
-                    with open('Personaldetails.txt' 'w') as file:
+                    with open('Personaldetails.txt', 'w') as file:
                         file.write(filedata)
+                else:
+                    print("Account not found")
 
         elif choice2 == 5:
             with open("help.txt") as fil:
