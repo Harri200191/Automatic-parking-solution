@@ -3,7 +3,13 @@ import re
 import os
 import sys
 import fileinput
+import random as rd
 
+parkinglist = []
+
+for x in range(60):
+    parkinglist.append(False)
+    
 current_time = datetime.datetime.now()
 
 def createhelp():
@@ -17,8 +23,6 @@ def createhelp():
         fil.write("**************GUIDLINES***********************\n")
         fil.write("*Take care of your safety and the safety of others while using the parking!\n")
         fil.write("*Follow the aisle you are being alloted\n")
-        fil.write("*If your car isn't in its designated spot in 5 minutes, you wil be fined 1000 Rs\n")
-        fil.write("*If you park for more than the specified time, you will be fined 200 Rs per hour\n")
         fil.write("*Make sure you set your account beforehand to prevent trouble\n")
         fil.write("*Don't park in a disabled people category parking.\n")
         fil.write("***************PARKING MAP********************\n")
@@ -42,6 +46,24 @@ def createhelp():
         fil.write("___________________________________________________\n")
         fil.write("Parking ends here*******************************************\n")
         
+def generaterandomspot():
+    returnthing = rd.randint(1,60)
+    return returnthing
+        
+def check_spot(spot):
+    count = 0
+    
+    while count <=60:
+        if parkinglist[spot] == False:
+            parkinglist[spot] = True
+            print("You have been alloted parking spot ", spot)
+            return True
+        else:
+            spot = generaterandomspot()
+            count+=1
+    
+    return False
+        
 def clearall():
     with open("Personaldetails.txt", 'w') as fil:
         fil.write(" ")
@@ -54,51 +76,49 @@ def checkformemberships(carnum, membership):
     day = ""
     empt = ""
     txt = "YES"
+    boolflag = False
     
     with open("Personaldetails.txt", 'r') as fil:
         lines = fil.readline()
         for line in lines:
             if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                if re.findall(r"YES|NO",line) == txt.split():
-                    year = re.findall(r"[2][0][0-9][0-9]",line)
-                    year = empt.join(year)
-                    find = re.findall(r"\-[0-9][0-9]\-",line)
-                    month = empt.join(find)
-                    day = re.findall(r"[0-9][0-9]$",line)   
-                    day = empt.join(day)
-                else:
-                    print("You are not a member!")
-                    return False
-     
-        if membership == "Monthly":            
-            if ((current_time.month == int(month)+1) or (month == 1 and current_time.month == 12)) and (int(date) == currentime_day):
-                with open("Walletdetails.txt", 'r') as fil:
-                    Lines = fil.readlines()                    
-                    for line in Lines:
-                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                            line = line.strip()
-                            line = line.split(",")
-                            mon = int(line[1])
-                            temp = mon - 500
+                year = re.findall(r"[2][0][0-9][0-9]",line)
+                year = empt.join(year)
+                find = re.findall(r"\-[0-9][0-9]\-",line)
+                month = empt.join(find)
+                month = month[1:3]
+                day = re.findall(r"[0-9][0-9]$",line)   
+                day = empt.join(day)
 
-                fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
-                with open("Walletdetails.txt", 'w') as file:
-                    file.write(fil)
+    if membership == "Monthly":            
+        if ((current_time.month == int(month)+1) or (month == 1 and current_time.month == 12)) and (int(date) == currentime_day):
+            with open("Walletdetails.txt", 'r') as fil:
+                Lines = fil.readlines()                    
+                for line in Lines:
+                    if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                        line = line.strip()
+                        line = line.split(",")
+                        mon = int(line[1])
+                        temp = mon - 500
 
-        elif membership == "Yearly":
-            if ((current_time.year == int(year)+1)) and (int(date) == currentime_day) and (int(month) == current_month):
-                with open("Walletdetails.txt", 'r') as fil:
-                    Lines = fil.readlines()                    
-                    for line in Lines:
-                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                            line = line.strip()
-                            line = line.split(",")
-                            mon = int(line[1])
-                            temp = mon - 5000
+            fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
+            with open("Walletdetails.txt", 'w') as file:
+                file.write(fil)
 
-                fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
-                with open("Walletdetails.txt", 'w') as file:
-                    file.write(fil)
+    elif membership == "Yearly":
+        if ((current_time.year == int(year)+1)) and (int(date) == currentime_day) and (int(month) == current_month):
+            with open("Walletdetails.txt", 'r') as fil:
+                Lines = fil.readlines()                    
+                for line in Lines:
+                    if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                        line = line.strip()
+                        line = line.split(",")
+                        mon = int(line[1])
+                        temp = mon - 5000
+
+            fil = open('Walletdetails.txt').read().replace(str(mon), str(temp))                    
+            with open("Walletdetails.txt", 'w') as file:
+                file.write(fil)
     return True
                 
 clearall()
@@ -111,15 +131,17 @@ print("********************************************************")
 choice = int(input("Choose from the menu above: "))
 while (choice!=1 and choice!=2):
     choice = int(input("Invalid choice, try again: "))
-    
+
+
+carnum = input("Enter your car registration number that must be in the form AAA-999: ")
+exp = re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", carnum)
+while (len(exp)==0):
+    carnum = input("Invalid input. Must be in the form AAA-999: ")
+    exp = re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", carnum)
+        
 if choice == 1:
     while bigloopflag == False:
         flag = False
-        carnum = input("Enter your car registration number that must be in the form AAA-999: ")
-        exp = re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", carnum)
-        while (len(exp)==0):
-            carnum = input("Invalid input. Must be in the form AAA-999: ")
-            exp = re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", carnum)
 
         print("--------------------------------------------------------")
         print("\t1: Set up a new account.")
@@ -241,12 +263,11 @@ if choice == 1:
                                     fil = open('Walletdetails.txt').read().replace(str(temp), str(mon))
                         
                                     with open("Walletdetails.txt", 'w') as file:
-                                        file.write(fil)
-
-                                    checkformemberships(carnum, "Yearly")    
+                                        file.write(fil)   
                                 else:
                                     print("Not enough money for membership, add balance to wallet again.")
-                                    
+                        checkformemberships(carnum, "Yearly")   
+                        
                     if flag2 == False:
                         print("No details found, create a new account!")
                 elif choice4 == 2:
@@ -270,7 +291,7 @@ if choice == 1:
                                                 line = line.split(",")
                                                 val = line[2]
 
-                                    filedata = open('Personaldetails.txt').read().replace("NO", "YES")
+                                    filedata = open('Personaldetails.txt').read().replace("NO", "YESM")
 
                                     with open('Personaldetails.txt', 'w') as file:
                                         file.write(filedata)
@@ -279,12 +300,11 @@ if choice == 1:
                         
                                     with open("Walletdetails.txt", 'w') as file:
                                         file.write(fil)   
-
-                                    checkformemberships(carnum, "Monthly")
                                     
                                 else:
                                     print("Not enough money for membership, add balance to wallet again.")
-                            
+                                    
+                        checkformemberships(carnum, "Monthly")                          
                     if flag2 == False:
                         print("No details found, create a new account!")
             else:  
@@ -327,10 +347,127 @@ if choice == 1:
             bigloopflag = True    
     
 else:
+    timetostay = int(input("Enter the number of hours you want to park the car: "))
+    while timetostay<1 or timetostay>16:
+        timetostay = int(input("Invalid input, try again: "))
+
+    while (timetostay + current_time.hour)>24:
+        print("You can't park your car as parking will close down.")
+        timetostay = int(input("Enter the number of hours you want to park the car. If you want to abort, press 0: "))
+        if timetostay == 0:
+            break
+        while timetostay<1 or timetostay>16:
+            timetostay = int(input("Invalid input, try again: "))
+            
+    countyearly = 0
+    countmonthly = 0
+    txt = "YES"
+    txt2 = "YESM"
+
     while (current_time.hour>=6 and current_time.hour<=24):
         print("--------------------------------------------------------")
         print("WELCOME TO THE PARKING AREA!")
         print("********************************************************")
+        
+        spot = generaterandomspot()
+        if check_spot(spot) == True:
+            print("The car has been alloted its parking space!")
+            with open("Personaldetails.txt", 'r') as fil:
+                Lines = fil.readlines()         
+                for line in Lines:
+                    if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):   
+                        if re.findall(r"YES|NO",line) == txt.split():
+                            countyearly +=1
+                            texttowrite = str(carnum)+ ","+ str(countyearly)+"\n"
+                            with open("Yearlycountfile.txt", 'a') as filedata:
+                                filedata.write(texttowrite)
+                                
+                            with open("Yearlycountfile.txt", 'r') as filedata:
+                                datas =filedata.readline()
+                                for data in datas:
+                                    teststr = "50"
+                                    check = re.findall(r"[0-9]?[0-9]$", data)
+                                    if check > teststr.split():
+                                        filedata = open('Yearlycountfile.txt').read().replace(check, "0")
+                                        with open("Yearlycountfile.txt", 'w') as file:
+                                            file.write(fil)   
+                                        print("You got a free parking!")                                         
+                                    else:
+                                        print("You have to pay 200 Rs per hour")
+                                        moneytopay = 200*timetostay
+                                        with open("Walletdetails.txt", 'r') as fil:
+                                            Lines = fil.readlines()                    
+                                            for line in Lines:
+                                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                                                    flag2 = True
+                                                    line = line.strip()
+                                                    line = line.split(",")
+                                                    mon = int(line[1])                                        
+                                        if mon<moneytopay:
+                                            print("You don't have enough money!")
+                                        else:
+                                            newmon = mon- moneytopay                               
+                                            fil = open('Walletdetails.txt').read().replace(str(mon), str(newmon))
+                                            with open("Walletdetails.txt", 'w') as file:
+                                                file.write(fil) 
+                                
+                        elif re.findall(r"YES|NO",line) == txt2.split():
+                            countmonthly +=1
+                            texttowrite = str(carnum)+ ","+ str(countmonthly)+"\n"
+                            with open("Monthlycountfile.txt", 'a') as filedata:
+                                filedata.write(texttowrite)
+                                
+                            with open("Monthlycountfile.txt", 'r') as filedata:
+                                datas =filedata.readline()
+                                for data in datas:
+                                    teststr = "90"
+                                    check = re.findall(r"[0-9]?[0-9]$", data)
+                                    if check > teststr.split():
+                                        filedata = open('Monthlycountfile.txt').read().replace(check, "0")
+                                        with open("Monthlycountfile.txt", 'w') as file:
+                                            file.write(fil)                                           
+                                        print("You got a free parking!") 
+                                    else:
+                                        print("You have to pay 200 Rs per hour")     
+                                        moneytopay = 200*timetostay
+                                        with open("Walletdetails.txt", 'r') as fil:
+                                            Lines = fil.readlines()                    
+                                            for line in Lines:
+                                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                                                    flag2 = True
+                                                    line = line.strip()
+                                                    line = line.split(",")
+                                                    mon = int(line[1])                                        
+                                        if mon<moneytopay:
+                                            print("You don't have enough money!")
+                                        else:
+                                            newmon = mon- moneytopay                               
+                                            fil = open('Walletdetails.txt').read().replace(str(mon), str(newmon))
+                                            with open("Walletdetails.txt", 'w') as file:
+                                                file.write(fil)                                            
+                        else:
+                            print("You have to pay 200 Rs per hour")
+                            moneytopay = 200*timetostay
+                            with open("Walletdetails.txt", 'r') as fil:
+                                Lines = fil.readlines()                    
+                                for line in Lines:
+                                    if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                                        flag2 = True
+                                        line = line.strip()
+                                        line = line.split(",")
+                                        mon = int(line[1])                                        
+                            if mon<moneytopay:
+                                print("You don't have enough money!")
+                            else:
+                                newmon = mon- moneytopay                               
+                                fil = open('Walletdetails.txt').read().replace(str(mon), str(newmon))
+                                with open("Walletdetails.txt", 'w') as file:
+                                    file.write(fil)                              
+                    else:
+                        print("Now account found, you can't park")                  
+        else:
+            print("Sorry! The parking is currently full.")
+        
         break
 
 print("********************************************************************")
