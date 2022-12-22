@@ -64,10 +64,15 @@ def check_spot(spot):
     
     return False
         
-def clearall():
+def clearall(carnum):
+    txtstr = carnum + ",0000"
     with open("Personaldetails.txt", 'w') as fil:
         fil.write(" ")
     with open("Walletdetails.txt", 'w') as fil:
+        fil.write(txtstr)
+    with open('Monthlycountfile.txt','w') as fil:
+        fil.write(" ")
+    with open('Yearlycountfile.txt','w') as fil:
         fil.write(" ")
         
 def checkformemberships(carnum, membership):
@@ -122,7 +127,6 @@ def checkformemberships(carnum, membership):
     return True
 
 ##MAIN FUNCTION STARTS HERE
-clearall()
 bigloopflag = False
 bigloop2 = False
 createhelp()
@@ -132,6 +136,8 @@ exp = re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", carnum)
 while (len(exp)==0):
     carnum = input("Invalid input. Must be in the form AAA-999: ")
     exp = re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", carnum)
+    
+clearall(carnum)
 
 while bigloop2 == False:
     print("********************************************************")
@@ -174,15 +180,23 @@ while bigloop2 == False:
                     flag4=False
                     Lines = fil.readlines()         
                     for line in Lines:
-                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):   
+                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):  
                             flag4 = True
                             money = int(input("How much money do you want to credit in your parking account: "))
                             while money<500 or money>20000:
                                 money = int(input("Enter an amount greater than 500 and less than 20,000: ")) 
-
-                            Line = carnum + "," + str(money)+"\n"
-                            with open("Walletdetails.txt", 'a') as fil:
-                                fil.write(Line)
+                            
+                            with open("Walletdetails.txt", 'r') as file:
+                                Lines = file.readlines()         
+                                for line in Lines:
+                                    if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):  
+                                        oldmon = re.findall(r"[0-9]*$", line)
+                                        oldmon = oldmon[0].strip()
+                            
+                            money = money + int(oldmon)
+                            fil = open('Walletdetails.txt').read().replace(oldmon, str(money))
+                            with open("Walletdetails.txt", 'w') as file:
+                                file.write(fil)                                 
 
                             print("Updated! You now have added",money, "in your account")
 
@@ -372,7 +386,6 @@ while bigloop2 == False:
 
             spot = generaterandomspot()
             if check_spot(spot) == True:
-                print("The car has been alloted its parking space!")
                 with open("Personaldetails.txt", 'r') as fil:
                     Lines = fil.readlines()         
                     for line in Lines:
@@ -465,7 +478,8 @@ while bigloop2 == False:
                                     with open("Walletdetails.txt", 'w') as file:
                                         file.write(fil)                              
                         else:
-                            print("No account found, you can't park")                  
+                            print("No account found, you can't park")      
+                            break
             else:
                 print("Sorry! The parking is currently full.")
 
