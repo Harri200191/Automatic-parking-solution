@@ -1,8 +1,5 @@
 import datetime
 import re
-import os
-import sys
-import fileinput
 import random as rd
 
 parkinglist = []
@@ -75,28 +72,13 @@ def clearall(carnum):
     with open('Yearlycountfile.txt','w') as fil:
         fil.write(" ")
         
-def checkformemberships(carnum, membership):
-    year = ""
-    month = ""
-    day = ""
-    empt = ""
+def checkformemberships(carnum, membership, years, month, day):
     txt = "YES"
     boolflag = False
-    
-    with open("Personaldetails.txt", 'r') as fil:
-        lines = fil.readline()
-        for line in lines:
-            if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                year = re.findall(r"[2][0][0-9][0-9]",line)
-                year = empt.join(year)
-                find = re.findall(r"\-[0-9][0-9]\-",line)
-                month = empt.join(find)
-                month = month[1:3]
-                day = re.findall(r"[0-9][0-9]$",line)   
-                day = empt.join(day)
 
+    years = int(years)
     if membership == "Monthly":            
-        if ((current_time.month == int(month)+1) or (month == 1 and current_time.month == 12)) and (int(date) == currentime_day):
+        if (current_time.month == int(month)+1) or (month == 1 and current_time.month == 12) and (int(date) == currentime_day):
             with open("Walletdetails.txt", 'r') as fil:
                 Lines = fil.readlines()                    
                 for line in Lines:
@@ -111,7 +93,7 @@ def checkformemberships(carnum, membership):
                 file.write(fil)
 
     elif membership == "Yearly":
-        if ((current_time.year == int(year)+1)) and (int(date) == currentime_day) and (int(month) == current_month):
+        if (current_time.year == years +1) and (int(date) == currentime_day) and (int(month) == current_month):
             with open("Walletdetails.txt", 'r') as fil:
                 Lines = fil.readlines()                    
                 for line in Lines:
@@ -257,36 +239,47 @@ while bigloop2 == False:
                             for line in Lines:
                                 if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
                                     flag2 = True
-                                    line = line.strip()
-                                    line = line.split(",")
-                                    mon = int(line[1])
-                                    temp = mon
+                                    mon = re.findall(r"[0-9]*$", line)
+                                    mon = mon[0].strip()
+                                    mon = int(mon)
+                                    temp = int(mon)
                                     if mon>5000:
                                         mon = mon - 5000                                  
                                         with open('Personaldetails.txt', 'r') as filedata :
                                             Lines = filedata.readlines()         
                                             for line in Lines:
                                                 if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                                                    line = line.strip()
-                                                    line = line.split(",")
-                                                    val = line[2]
+                                                    
+                                                    timestr = ","+str(current_time.year) +"-"+ str(current_time.month)+"-" + str(current_time.day)
+                                                    filedata = open('Personaldetails.txt').read().replace("NO", "YES").replace('\n', timestr)
+                                 
+                                                    with open('Personaldetails.txt', 'w') as file:
+                                                        file.write(filedata)
 
-                                        timestr = ","+str(current_time.year) +"-"+ str(current_time.month)+"-" + str(current_time.day)
-                                        filedata = open('Personaldetails.txt').read().replace("NO", "YES").replace('\n', timestr)
+                                                    filez = open('Walletdetails.txt').read().replace(str(temp), str(mon))
 
-                                        with open('Personaldetails.txt', 'w') as file:
-                                            file.write(filedata)
-
-                                        fil = open('Walletdetails.txt').read().replace(str(temp), str(mon))
-
-                                        with open("Walletdetails.txt", 'w') as file:
-                                            file.write(fil)   
+                                                    with open("Walletdetails.txt", 'w') as filezes:
+                                                        filezes.write(filez)  
+                                                        
+                                                    with open('Personaldetails.txt', 'r') as filedatainfo:
+                                                        Linestoread = filedatainfo.readlines()         
+                                                        for linez in Linestoread:
+                                                            if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", linez) == carnum.split()):
+                                                                years = re.findall(r"[2][0][0-9][0-9]",linez)
+                                                                years = years[0].strip()
+                                                                find = re.findall(r"\-[0-9][0-9]\-",linez)
+                                                                month = find[0].strip()
+                                                                month = month[1:3]
+                                                                day = re.findall(r"[0-9][0-9]$",linez)   
+                                                                day = day[0].strip()
+                                                                            
+                                                    checkformemberships(carnum, "Yearly", years, month,day)   
+                                                    print("You are now a member!!!")
+                                                else:
+                                                    print("No account found")
                                     else:
                                         print("Not enough money for membership, add balance to wallet again.")
-                            checkformemberships(carnum, "Yearly")   
-
-                        if flag2 == False:
-                            print("No details found, create a new account!")
+                                        
                     elif choice4 == 2:
                         with open("Walletdetails.txt", 'r') as fil:
                             flag2 = False
@@ -304,24 +297,37 @@ while bigloop2 == False:
                                             Lines = filedata.readlines()         
                                             for line in Lines:
                                                 if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                                                    line = line.strip()
-                                                    line = line.split(",")
-                                                    val = line[2]
+                                                                                                        
+                                                    timestr = ","+str(current_time.year) +"-"+ str(current_time.month)+"-" + str(current_time.day)
+                                                    filedata = open('Personaldetails.txt').read().replace("NO", "YESM").replace('\n', timestr)
+                                 
+                                                    with open('Personaldetails.txt', 'w') as file:
+                                                        file.write(filedata)
 
-                                        filedata = open('Personaldetails.txt').read().replace("NO", "YESM")
+                                                    filez = open('Walletdetails.txt').read().replace(str(temp), str(mon))
 
-                                        with open('Personaldetails.txt', 'w') as file:
-                                            file.write(filedata)
-
-                                        fil = open('Walletdetails.txt').read().replace(str(temp), str(mon))
-
-                                        with open("Walletdetails.txt", 'w') as file:
-                                            file.write(fil)   
-
+                                                    with open("Walletdetails.txt", 'w') as filezes:
+                                                        filezes.write(filez)  
+                                                        
+                                                    with open('Personaldetails.txt', 'r') as filedatainfo:
+                                                        Linestoread = filedatainfo.readlines()         
+                                                        for linez in Linestoread:
+                                                            if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", linez) == carnum.split()):
+                                                                years = re.findall(r"[2][0][0-9][0-9]",linez)
+                                                                years = years[0].strip()
+                                                                find = re.findall(r"\-[0-9][0-9]\-",linez)
+                                                                month = find[0].strip()
+                                                                month = month[1:3]
+                                                                day = re.findall(r"[0-9][0-9]$",linez)   
+                                                                day = day[0].strip()
+                                                                            
+                                                    checkformemberships(carnum, "Monthly", years, month,day)   
+                                                    print("You are now a member!!!")
+                                            else:
+                                                print("Account not founf")
                                     else:
                                         print("Not enough money for membership, add balance to wallet again.")
-
-                            checkformemberships(carnum, "Monthly")                          
+                       
                         if flag2 == False:
                             print("No details found, create a new account!")
                 else:  
