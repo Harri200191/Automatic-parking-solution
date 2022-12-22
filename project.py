@@ -332,27 +332,29 @@ while bigloop2 == False:
                             print("No details found, create a new account!")
                 else:  
                     txt = "YES"
+                    txt2 = "YESM"
                     flag3 = False
                     with open('Personaldetails.txt', 'r') as filedata:
                         Lines = filedata.readlines()         
                         for line in Lines:
-                            test = re.findall(r"YES|NO",line)
-                            if len(test) == 0 or test[0] != "YES":
-                                flag3 = False
-                                break
-                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                                    flag3 = True
+                            if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                                test = re.findall(r"YES|NO|YESM",line)
+                                if test[0] != txt.split() and test[0]!=txt2.split():
 
-                    if flag3 == True:
-                        empty = ""
-                        torepl = re.findall(r"[2][0][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]$",line)
-                        torepl = empty.join(torepl)
-                        filedata = open('Personaldetails.txt').read().replace("YES", "NO").replace(torepl, '\n')
+                                    torepl = re.findall(r"\,[2][0][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]$",line)
+                                    torepl = torepl[0].strip()
+                                    if test[0] == "YESM":
+                                        filedata = open('Personaldetails.txt').read().replace("YESM", "NO").replace(torepl, '\n')
+                                    else:
+                                        filedata = open('Personaldetails.txt').read().replace("YES", "NO").replace(torepl, '\n')
 
-                        with open('Personaldetails.txt', 'w') as file:
-                            file.write(filedata)
-                    else:
-                        print("Account not found")
+                                    with open('Personaldetails.txt', 'w') as file:
+                                        file.write(filedata)
+                                    print("You have been removed as a member.")
+                                else:
+                                    print("You are not a member")
+                            else:
+                                print("Account not found")
 
             elif choice2 == 5:
                 with open("help.txt") as fil:
@@ -407,6 +409,7 @@ while bigloop2 == False:
                                     for data in datas:
                                         teststr = "50"
                                         check = re.findall(r"[0-9]?[0-9]$", data)
+                                        check = check[0].strip()
                                         if check > teststr.split():
                                             filedata = open('Yearlycountfile.txt').read().replace(check, "0")
                                             with open("Yearlycountfile.txt", 'w') as file:
