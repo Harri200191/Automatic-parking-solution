@@ -44,17 +44,18 @@ def createhelp():
         fil.write("Parking ends here*******************************************\n")
         
 def generaterandomspot():
-    returnthing = rd.randint(1,60)
+    returnthing = rd.randint(0,59)
     return returnthing
         
 def check_spot(spot):
     count = 0
     
-    while count <=60:
+    while count <60:
         if parkinglist[spot] == False:
             parkinglist[spot] = True
-            print("You have been alloted parking spot ", spot)
+            print("You have been alloted parking spot", spot)
             return True
+            break          
         else:
             spot = generaterandomspot()
             count+=1
@@ -75,13 +76,13 @@ def clearall(carnum):
 def testfunc(carnum):
     txtstr = carnum + ",0000\n"
     with open("Personaldetails.txt", 'w') as fil:
-        fil.write("")
+        fil.write(" ")
     with open("Walletdetails.txt", 'w') as fil:
         fil.write(txtstr)
     with open('Monthlycountfile.txt','w') as fil:
-        fil.write(carnum+ ",0\n")
+        fil.write(" "+carnum+ ",0\n")
     with open('Yearlycountfile.txt','w') as fil:
-        fil.write(carnum+ ",0\n")
+        fil.write(" "+carnum+ ",0\n")
         
 def checkformemberships(carnum, membership, years, month, day):
     txt = "YES"
@@ -122,6 +123,8 @@ def checkformemberships(carnum, membership, years, month, day):
 ##MAIN FUNCTION STARTS HERE
 bigloopflag = False
 bigloop2 = False
+countyearly = 0
+countmonthly = 0
 createhelp()
 
 carnum = input("Enter your car registration number that must be in the form AAA-999: ")
@@ -260,8 +263,7 @@ while bigloop2 == False:
                                         with open('Personaldetails.txt', 'r') as filedata :
                                             Lines = filedata.readlines()         
                                             for line in Lines:
-                                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                                                    
+                                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):                                    
                                                     timestr = ","+str(current_time.year) +"-"+ str(current_time.month)+"-" + str(current_time.day)
                                                     filedata = open('Personaldetails.txt').read().replace("NO", "YES").replace('\n', timestr)
                                  
@@ -394,8 +396,6 @@ while bigloop2 == False:
             while timetostay<1 or timetostay>18:
                 timetostay = int(input("Invalid input, try again: "))
 
-        countyearly = 0
-        countmonthly = 0
         txt = "YES"
         txt2 = "YESM"
 
@@ -404,15 +404,15 @@ while bigloop2 == False:
             print("WELCOME TO THE PARKING AREA!")
             print("********************************************************")
 
-            spot = generaterandomspot()
-            if check_spot(spot) == True:
-                with open("Personaldetails.txt", 'r') as fil:
-                    Lines = fil.readlines()         
-                    for line in Lines:
-                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):   
-                            if re.findall(r"YES|NO",line) == txt.split():
-                                with open("Yearlycountfile.txt", 'r') as datatoread:
-                                    datas =datatoread.readline()
+            spoty = generaterandomspot()
+            if check_spot(spoty) == True:
+                with open('Personaldetails.txt', 'r') as y:
+                    Lines2 = y.readlines()         
+                    for linex in Lines2:
+                        if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", linex) == carnum.split()):                            
+                            if re.findall(r"YES|NO",linex) == txt.split():                                
+                                with open('Yearlycountfile.txt', 'r') as datatoread:
+                                    datas =datatoread.readlines()
                                     for data in datas:
                                         teststr = "50"
                                         if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", data) == carnum.split()):
@@ -422,7 +422,7 @@ while bigloop2 == False:
                                             filedatawrite = open("Yearlycountfile.txt").read().replace(check, str(countyearly))
                                             with open("Yearlycountfile.txt", 'w') as filedata:
                                                 filedata.write(filedatawrite)
-                                            if check > teststr.split():
+                                            if int(check) > int(teststr):
                                                 filedata = open('Yearlycountfile.txt').read().replace(check, "0")
                                                 with open("Yearlycountfile.txt", 'w') as file:
                                                     file.write(fil)   
@@ -447,21 +447,20 @@ while bigloop2 == False:
                                                         file.write(fil) 
 
                             elif re.findall(r"YESM|NO",line) == txt2.split():
-                                countmonthly +=1
-                                filedatawrite = open("Monthlycountfile.txt").read().replace("0", str(countmonthly))
-                                with open("Monthlycountfile.txt", 'w') as filedata:
-                                    filedata.write(filedatawrite)
-
-                                with open("Monthlycountfile.txt", 'r') as datatoread:
-                                    datas =datatoread.readline()
+                                with open('Monthlycountfile.txt', 'r') as datatoread:
+                                    datas =datatoread.readlines()
                                     for data in datas:
                                         teststr = "100"
                                         if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", data) == carnum.split()):
                                             check = re.findall(r"[0-9]?[0-9]?[0-9]$", data)
                                             check = check[0].strip()
-                                            if check > teststr.split():
+                                            countyearly +=1
+                                            filedatawrite = open("Monthlycountfile.txt").read().replace(check, str(countmonthly))
+                                            with open("Monthlycountfile.txt", 'w') as filedata:
+                                                filedata.write(filedatawrite)
+                                            if int(check) > int(teststr):
                                                 filedata = open('Monthlycountfile.txt').read().replace(check, "0")
-                                                with open("Monthlycountfile.txt", 'w') as file:
+                                                with open("Yearlycountfile.txt", 'w') as file:
                                                     file.write(fil)   
                                                 print("You got a free parking!")                                         
                                             else:
@@ -482,6 +481,8 @@ while bigloop2 == False:
                                                     fil = open('Walletdetails.txt').read().replace(str(mon), str(newmon))
                                                     with open("Walletdetails.txt", 'w') as file:
                                                         file.write(fil) 
+              
+                                               
                             else:
                                 print("You have to pay 200 Rs per hour")
                                 moneytopay = 200*timetostay
