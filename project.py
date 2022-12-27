@@ -62,19 +62,9 @@ def check_spot(spot):
     
     return False
         
-def clearall(carnum):
-    txtstr = carnum + ",0000\n"
-    with open("Personaldetails.txt", 'a') as fil:
-        fil.write("")
-    with open("Walletdetails.txt", 'a') as fil:
-        fil.write(txtstr)
-    with open('Monthlycountfile.txt','a') as fil:
-        fil.write("")
-    with open('Yearlycountfile.txt','a') as fil:
-        fil.write("")
         
 def testfunc(carnum):
-    txtstr = carnum + ",0000\n"
+    txtstr = carnum + ",0\n"
     with open("Personaldetails.txt", 'w') as fil:
         fil.write(" ")
     with open("Walletdetails.txt", 'w') as fil:
@@ -165,7 +155,7 @@ while bigloop2 == False:
                 print("Welcome to the set account center!")
                 print("--------------------------------------------------------")
                 name = input("Enter your complete name: ")
-                line = name + "," + carnum + ","+"NO\n"  
+                line = " "+ name + "," + carnum + ","+"NO\n"  
                 with open("Personaldetails.txt", 'a') as fil:
                     fil.write(line)
 
@@ -191,9 +181,9 @@ while bigloop2 == False:
                                         oldmon = oldmon[0].strip()
                             
                             money = money + int(oldmon)
-                            fil = open('Walletdetails.txt').read().replace(oldmon, str(money))
+                            filtowrite = open('Walletdetails.txt').read().replace(oldmon, str(money))
                             with open("Walletdetails.txt", 'w') as file:
-                                file.write(fil)                                 
+                                file.write(filtowrite)                                 
 
                             print("Updated! You now have added",money, "in your account")
 
@@ -230,6 +220,7 @@ while bigloop2 == False:
                         print("Money: ", tempmoney)
 
             elif choice2 == 4:
+                flag10 = False
                 print("--------------------------------------------------------")
                 print("1: Cancel Existing membership")
                 print("2: Create membership")
@@ -240,7 +231,7 @@ while bigloop2 == False:
 
                 if choice3 == 2:
                     print("**************MEMBERSHIP PLANS****************")
-                    print("1: 5000 Rs annually /recommended/")
+                    print("1: 5000 Rs annually /recommended")
                     print("2: 500 Rs monthly")
                     print("Note: You can cancel the subscription anytime.")
                     print("--------------------------------------------------------")
@@ -250,11 +241,11 @@ while bigloop2 == False:
                     if choice4 == 1:
                         with open("Walletdetails.txt", 'r') as fil:
                             flag2 = False
-                            Lines = fil.readlines()                    
-                            for line in Lines:
-                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                            Linesx = fil.readlines()                    
+                            for linex in Linesx:
+                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", linex) == carnum.split()):
                                     flag2 = True
-                                    mon = re.findall(r"[0-9]*$", line)
+                                    mon = re.findall(r"[0-9]*$", linex)
                                     mon = mon[0].strip()
                                     mon = int(mon)
                                     temp = int(mon)
@@ -263,7 +254,8 @@ while bigloop2 == False:
                                         with open('Personaldetails.txt', 'r') as filedata :
                                             Lines = filedata.readlines()         
                                             for line in Lines:
-                                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):                                    
+                                                if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
+                                                    flag10 = True
                                                     timestr = ","+str(current_time.year) +"-"+ str(current_time.month)+"-" + str(current_time.day)
                                                     filedata = open('Personaldetails.txt').read().replace("NO", "YES").replace('\n', timestr)
                                  
@@ -289,8 +281,8 @@ while bigloop2 == False:
                                                                             
                                                     checkformemberships(carnum, "Yearly", years, month,day)   
                                                     print("You are now a member!!!")
-                                                else:
-                                                    print("No account found")
+                                            if flag10 == False:
+                                                print("Account not found")
                                     else:
                                         print("Not enough money for membership, add balance to wallet again.")
                                         
@@ -301,17 +293,17 @@ while bigloop2 == False:
                             for line in Lines:
                                 if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
                                     flag2 = True
-                                    line = line.strip()
-                                    line = line.split(",")
-                                    mon = int(line[1])
-                                    temp = mon
+                                    mon = re.findall(r"[0-9]*$", line)
+                                    mon = mon[0].strip()
+                                    mon = int(mon)
+                                    temp = int(mon)
                                     if mon>500:
-                                        mon = mon - 500                                   
+                                        mon = mon - 500                                  
                                         with open('Personaldetails.txt', 'r') as filedata :
                                             Lines = filedata.readlines()         
                                             for line in Lines:
                                                 if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
-                                                                                                        
+                                                    flag10 = True
                                                     timestr = ","+str(current_time.year) +"-"+ str(current_time.month)+"-" + str(current_time.day)
                                                     filedata = open('Personaldetails.txt').read().replace("NO", "YESM").replace('\n', timestr)
                                  
@@ -337,27 +329,25 @@ while bigloop2 == False:
                                                                             
                                                     checkformemberships(carnum, "Monthly", years, month,day)   
                                                     print("You are now a member!!!")
-                                            else:
-                                                print("Account not founf")
+                                            if flag10 == False:
+                                                print("Account not found")
                                     else:
                                         print("Not enough money for membership, add balance to wallet again.")
-                       
-                        if flag2 == False:
-                            print("No details found, create a new account!")
                 else:  
                     txt = "YES"
-                    txt2 = "YESM"
+                    txt2 = ",YESM,"
                     flag3 = False
                     with open('Personaldetails.txt', 'r') as filedata:
                         Lines = filedata.readlines()         
                         for line in Lines:
                             if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", line) == carnum.split()):
                                 test = re.findall(r"YES|NO|YESM",line)
-                                if test[0] != txt.split() and test[0]!=txt2.split():
+                                test = test[0].strip()
+                                if test == txt or test== txt2:
 
                                     torepl = re.findall(r"\,[2][0][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]$",line)
                                     torepl = torepl[0].strip()
-                                    if test[0] == "YESM":
+                                    if test[0] == ",YESM,":
                                         filedata = open('Personaldetails.txt').read().replace("YESM", "NO").replace(torepl, '\n')
                                     else:
                                         filedata = open('Personaldetails.txt').read().replace("YES", "NO").replace(torepl, '\n')
@@ -481,8 +471,7 @@ while bigloop2 == False:
                                                     fil = open('Walletdetails.txt').read().replace(str(mon), str(newmon))
                                                     with open("Walletdetails.txt", 'w') as file:
                                                         file.write(fil) 
-              
-                                               
+                                                     
                             else:
                                 print("You have to pay 200 Rs per hour")
                                 moneytopay = 200*timetostay
@@ -515,7 +504,8 @@ while bigloop2 == False:
     while(contchoice2.lower()!="yes" and contchoice2.lower()!="no"):
         contchoice2= input("Wrong choice, try again: ")
     if contchoice2 == "yes":
-        bigloop2 = False
+        bigloop2 = Falsey
+        
     else:
         bigloop2 = True 
 
