@@ -1,0 +1,196 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
+#include <sys/types.h>
+#include <string.h>
+#include <regex.h>
+#include <errno.h>
+#include "functions.h"
+
+//NOTE i've completed till line 101 in ptoject.py; continue from there
+
+bool parkinglist[] = {false};
+
+
+void createhelp()
+{
+    FILE *help;
+
+    help = fopen("help.txt", "w");
+    if (help == NULL)
+    {
+        printf("Help.txt is empty, error");
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(help, "If you face any issues, you can email us at harisrehmanchugtai@gmail.com\n");
+    fprintf(help, "Conversly, you can contact us at 0300-XXXXXXX\n");
+    fprintf(help, "**************MEMBERSHIP PLANS****************\n");
+    fprintf(help, "1: 5000 Rs annually /recommended/\n");
+    fprintf(help, "2: 500 Rs monthly\n");
+    fprintf(help, "Note: You can cancel the subscription anytime.\n");
+    fprintf(help, "**************GUIDLINES***********************\n");
+    fprintf(help, "*Take care of your safety and the safety of others while using the parking!\n");
+    fprintf(help, "*Follow the aisle you are being alloted\n");
+    fprintf(help, "*Make sure you set your account beforehand to prevent trouble\n");
+    fprintf(help, "*Don't park in a disabled people category parking.\n");
+    fprintf(help, "***************PARKING MAP********************\n");
+    fprintf(help, "ENTER HERE\n");
+    fprintf(help, "____________________________________;_______________\n");
+    fprintf(help, "___________________________________________________\n");
+    fprintf(help, "| 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 |\n");
+    fprintf(help, "                                                   \n");
+    fprintf(help, "| 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 |\n");
+    fprintf(help, "___________________________________________________\n");
+    fprintf(help, "___________________________________________________\n");
+    fprintf(help, "| 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 |\n");
+    fprintf(help, "                                                   \n");
+    fprintf(help, "| 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 |\n");
+    fprintf(help, "___________________________________________________\n");
+    fprintf(help, "___________________________________________________\n");
+    fprintf(help, "| 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 |\n");
+    fprintf(help, "                                                   \n");
+    fprintf(help, "| 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 |\n");
+    fprintf(help, "___________________________________________________\n");
+    fprintf(help, "___________________________________________________\n");
+    fprintf(help, "Parking ends here*******************************************\n");
+}
+
+int randspot()
+{
+    int spot = rand() % ((60) + 1 - 1) + 1;
+    return spot;
+}
+
+bool checkspot(int spot)
+{
+    int count = 0;
+
+    while (count <= 60)
+    {
+        if (parkinglist[spot] == false)
+        {
+            parkinglist[spot] = true;
+            printf("You have been alloted parking spot %d", spot);
+            return true;
+        }
+        else
+        {
+            spot = randspot();
+            count++;
+        }
+    }
+    return false;
+}
+
+void clearall(FILE *personal, FILE *wallet)
+{
+    fclose(personal);
+    fopen("Personaldetails.txt", "w");
+    fclose(wallet);
+    fopen("Walletdetails.txt", "w");
+}
+
+// findregex --> takes  three param; one reg pattern, ptr to file (which is to be read), 
+
+//to check the presence of regex functions 
+bool is_regex(char* regex, char* fileName, char* match){
+    FILE *fp;
+    char line[1024];
+    int retval = 0;
+    regex_t re;
+    regmatch_t rm[2];
+  
+    if (regcomp(&re, regex, REG_EXTENDED) != 0)
+    {
+        fprintf(stderr, "Failed to compile regex '%s'\n", regex);
+    }
+
+    fp = fopen(fileName, "r");
+    if (fp == 0)
+    {
+        fprintf(stderr, "Failed to open file %s (%d: %s)\n", fileName, errno, strerror(errno));
+    }
+
+    bool flag = false; 
+    while ((fgets(line, 1024, fp)) != NULL)
+    {
+        line[strcspn(line, "\n")] = '\0';
+        if ((retval = regexec(&re, line, 2, rm, 0)) == 0)
+        {
+            char arr[8];
+            strcpy(arr,line + rm[0].rm_so);
+            removeSubstr(arr, " NO");
+            arr[8] = '\0';
+            
+            if(strcmp(match,arr) == 0){
+                return true;
+            }
+            else{
+                flag = false;
+                continue;
+            }
+        }
+    } 
+    if(flag == false){
+        return false;
+    }
+}
+
+
+
+
+bool checkformem(char* carnum, char* mem, char* year, char* month, char* day){
+    char txt[] = "YES";
+    bool flag = false; 
+
+    // returns local time, which encapsulates current year, month, day etc
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    int years = atoi(year); 
+    int months = atoi(month);
+    int days = atoi(day); 
+
+    if(strcmp(mem,"Monthly") == 0){
+        if((tm.tm_mon == months+1) || (months == 1 && tm.tm_mon==12) && (days==tm.tm_mday)){
+            char line[100];
+            int temp,mon;
+            if(is_regex("[A-Z][A-Z][A-Z]\\-[0-9][0-9][0-9]","Walletdetails.txt",carnum)==true){
+                strcpy(line,fetchline("[A-Z][A-Z][A-Z]\\-[0-9][0-9][0-9]","Walletdetails.txt",carnum));
+                strstrip(line);
+                //strtok to separate strings into tokens using a delimiter
+                char* token = strtok(line, ",");
+                mon = (int)atoi(token);
+                temp = months - 500;
+            }
+            char str_mon[100]; char str_temp[100];
+            sprintf(str_mon,"%d",mon);
+            sprintf(str_temp, "%d", temp);
+            
+        }
+    }
+}
+
+int main()
+{
+    FILE *p;
+    FILE *personal, *wallet;
+    // personal = fopen("Personaldetails.txt", "w");
+    // wallet = fopen("Walletdetails.txt", "w");
+
+    srand(time(NULL));
+    time_t mytime = time(NULL);
+    char *time_str = ctime(&mytime);
+    time_str[strlen(time_str) - 1] = '\0';
+
+
+    // printf("carnum: %lu\n",strlen(carnum));
+
+    findAndReplaceInFile("Walletdetails.txt","Walletdetails1.txt","RRR", "TYU");
+    
+
+    return 0;
+
+}
