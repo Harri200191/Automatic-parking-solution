@@ -273,10 +273,10 @@ while bigloop2 == False:
                                                             if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", linez) == carnum.split()):
                                                                 years = re.findall(r"[2][0][0-9][0-9]",linez)
                                                                 years = years[0].strip()
-                                                                find = re.findall(r"\-[0-9][0-9]\-",linez)
+                                                                find = re.findall(r"\-[0-9]?[0-9]\-",linez)
                                                                 month = find[0].strip()
-                                                                month = month[1:3]
-                                                                day = re.findall(r"[0-9][0-9]$",linez)   
+                                                                month = month[1:2]
+                                                                day = re.findall(r"[0-9]?[0-9]$",linez)   
                                                                 day = day[0].strip()
                                                                             
                                                     checkformemberships(carnum, "Yearly", years, month,day)   
@@ -321,10 +321,10 @@ while bigloop2 == False:
                                                             if (re.findall(r"[A-Z][A-Z][A-Z]\-[0-9][0-9][0-9]", linez) == carnum.split()):
                                                                 years = re.findall(r"[2][0][0-9][0-9]",linez)
                                                                 years = years[0].strip()
-                                                                find = re.findall(r"\-[0-9][0-9]\-",linez)
+                                                                find = re.findall(r"\-[0-9]?[0-9]\-",linez)
                                                                 month = find[0].strip()
-                                                                month = month[1:3]
-                                                                day = re.findall(r"[0-9][0-9]$",linez)   
+                                                                month = month[1:2]
+                                                                day = re.findall(r"[0-9]?[0-9]$",linez)   
                                                                 day = day[0].strip()
                                                                             
                                                     checkformemberships(carnum, "Monthly", years, month,day)   
@@ -436,7 +436,7 @@ while bigloop2 == False:
                                                     with open("Walletdetails.txt", 'w') as file:
                                                         file.write(fil) 
 
-                            elif re.findall(r"YESM|NO",line) == txt2.split():
+                            elif re.findall(r"YESM|NO",linex) == txt2.split():
                                 with open('Monthlycountfile.txt', 'r') as datatoread:
                                     datas =datatoread.readlines()
                                     for data in datas:
@@ -504,7 +504,7 @@ while bigloop2 == False:
     while(contchoice2.lower()!="yes" and contchoice2.lower()!="no"):
         contchoice2= input("Wrong choice, try again: ")
     if contchoice2 == "yes":
-        bigloop2 = Falsey
+        bigloop2 = False
         
     else:
         bigloop2 = True 
